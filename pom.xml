@@ -9,9 +9,9 @@
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.bezkoder</groupId>
-    <artifactId>spring-boot-login-example</artifactId>
+    <artifactId>Budget-Planner</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>spring-boot-login-example</name>
+    <name>Budget-Planner</name>
     <description>Spring Boot Login example with Spring Security, JWT and Oracle Database - Rest API</description>
     <properties>
         <java.version>17</java.version>
