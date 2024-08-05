@@ -38,17 +38,28 @@ public class JwtUtils {
   }
 
   public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
-    String jwt = generateTokenFromUsername(userPrincipal.getUsername());
-    // Change the path to "/"
-    ResponseCookie cookie = ResponseCookie.from(jwtCookie, jwt).path("/").maxAge(24 * 60 * 60).httpOnly(true).build();
-    return cookie;
-  }
+	    String jwt = generateTokenFromUsername(userPrincipal.getUsername());
+	    // Ensure SameSite=None for cross-origin requests and remove Secure for HTTP
+	    ResponseCookie cookie = ResponseCookie.from(jwtCookie, jwt)
+	                                          .path("/")
+	                                          .maxAge(24 * 60 * 60)
+	                                          .httpOnly(false)
+	                                          .sameSite("None")
+	                                          .secure(false)
+	                                          .build();
+	    return cookie;
+	}
 
-  public ResponseCookie getCleanJwtCookie() {
-    // Change the path to "/"
-    ResponseCookie cookie = ResponseCookie.from(jwtCookie, null).path("/").build();
-    return cookie;
-  }
+	public ResponseCookie getCleanJwtCookie() {
+	    // Ensure SameSite=None for cross-origin requests and remove Secure for HTTP
+	    ResponseCookie cookie = ResponseCookie.from(jwtCookie, null)
+	                                          .path("/")
+	                                          .sameSite("None")
+	                                          .secure(false)
+	                                          .build();
+	    return cookie;
+	}
+
 
   public String getUserNameFromJwtToken(String token) {
     return Jwts.parserBuilder().setSigningKey(key()).build()
@@ -85,3 +96,4 @@ public class JwtUtils {
               .compact();
   }
 }
+

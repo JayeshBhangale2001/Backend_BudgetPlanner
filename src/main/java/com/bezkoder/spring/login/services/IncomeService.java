@@ -20,4 +20,19 @@ public class IncomeService {
     public Income saveIncome(Income income) {
         return incomeRepository.save(income);
     }
+
+    public Income updateIncome(Long id, Income updatedIncome) {
+        return incomeRepository.findById(id).map(income -> {
+            income.setMonth(updatedIncome.getMonth());
+            income.setSource(updatedIncome.getSource());
+            income.setAmount(updatedIncome.getAmount());
+            income.setInvestments(updatedIncome.getInvestments());
+            income.setDate(updatedIncome.getDate()); // Update date
+            return incomeRepository.save(income);
+        }).orElseThrow(() -> new RuntimeException("Income not found with id " + id));
+    }
+
+    public void deleteIncome(Long id) {
+        incomeRepository.deleteById(id);
+    }
 }

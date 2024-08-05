@@ -65,7 +65,7 @@ public class WebSecurityConfig {
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> 
-                auth.requestMatchers("/", "/status", "/api/auth/**", "/api/test/**", "/api/auth/signup").permitAll()
+                auth.requestMatchers("/", "/status", "/api/auth/**", "/api/test/**", "/api/auth/signup", "/api/auth/signin").permitAll()
                     .anyRequest().authenticated()
             )
             .cors(); // Enable CORS support
@@ -75,6 +75,7 @@ public class WebSecurityConfig {
 
         return http.build();
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

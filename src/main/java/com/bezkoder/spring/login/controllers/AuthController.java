@@ -3,6 +3,7 @@ package com.bezkoder.spring.login.controllers;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,25 +59,43 @@ public class AuthController {
   @PostMapping("/signin")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
-    Authentication authentication = authenticationManager
-        .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+	    // Authenticate user
+	    Authentication authentication = authenticationManager
+	        .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+	    
+	    // Set authentication context
+	    SecurityContextHolder.getContext().setAuthentication(authentication);
+	    
+	    // Get user details
+	    UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-    SecurityContextHolder.getContext().setAuthentication(authentication);
+	    // Generate JWT token
+	    String jwtToken = jwtUtils.generateTokenFromUsername(userDetails.getUsername());
 
-    UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+	    // Create a cookie for the JWT token
+	    ResponseCookie jwtCookie = ResponseCookie.from("bezkoder", jwtToken)
+	        .httpOnly(true) // To prevent JavaScript access
+	        .secure(false) // Set to true if you're using HTTPS
+	        .path("/") // Set the cookie path
+	        .maxAge(24 * 60 * 60) // Cookie expiration (1 day)
+	        .build();
+	    
+	    // Extract roles
+	    List<String> roles = userDetails.getAuthorities().stream()
+	        .map(item -> item.getAuthority())
+	        .collect(Collectors.toList());
 
-    ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
-
-    List<String> roles = userDetails.getAuthorities().stream()
-        .map(item -> item.getAuthority())
-        .collect(Collectors.toList());
-
-    return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-        .body(new UserInfoResponse(userDetails.getId(),
-                                   userDetails.getUsername(),
-                                   userDetails.getEmail(),
-                                   roles));
-  }
+	    // Build the response body with the token and user details
+	    return ResponseEntity.ok()
+	        .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+	        .body(Map.of(
+	            "id", userDetails.getId(),
+	            "username", userDetails.getUsername(),
+	            "email", userDetails.getEmail(),
+	            "roles", roles,
+	            "token", jwtToken // Include the token in the response body
+	        ));
+	}
 
   @PostMapping("/signup")
   public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {

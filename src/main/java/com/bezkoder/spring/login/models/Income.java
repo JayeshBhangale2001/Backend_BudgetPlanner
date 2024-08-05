@@ -33,9 +33,15 @@ public class Income {
     @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "income_date")  // New field
+    private LocalDateTime date; // New field
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+        if (this.date == null) {
+            this.date = LocalDateTime.now(); // Default value for date if not set
+        }
     }
 
     // Getters and Setters
@@ -85,5 +91,14 @@ public class Income {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getDate() {  // New getter
+        return date;
+
+    }
+
+    public void setDate(LocalDateTime date) {  // New setter
+        this.date = date;
     }
 }
