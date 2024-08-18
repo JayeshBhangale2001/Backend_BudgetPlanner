@@ -24,6 +24,9 @@ public class Expense {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date expenseDate;
+
     @PrePersist
     protected void onCreate() {
         createdAt = new Date();
@@ -68,5 +71,13 @@ public class Expense {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Date getExpenseDate() {
+        return expenseDate;
+    }
+
+    public void setExpenseDate(Date expenseDate) {
+        this.expenseDate = expenseDate;
     }
 }
