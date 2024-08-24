@@ -1,10 +1,12 @@
 package com.bezkoder.spring.login.models;
 
-import java.util.Date;
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "accounts")
@@ -36,12 +38,21 @@ public class Account {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonBackReference
+    private User user;
+
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
+    private List<Expense> expenses;
+    
     @PrePersist
     protected void onCreate() {
         createdAt = new Date();
     }
 
     // Getters and setters
+    // Add getter and setter for 'user'
     public Long getId() {
         return id;
     }
@@ -112,5 +123,13 @@ public class Account {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
