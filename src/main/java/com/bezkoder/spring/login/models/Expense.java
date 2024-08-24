@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Table(name = "expenses")
 public class Expense {
@@ -12,8 +14,11 @@ public class Expense {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    private String month;
+    @NotNull
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "account_id") // This column references the Account table
+    private Account account;
+
 
     @NotBlank
     private String expenseType;
@@ -26,6 +31,12 @@ public class Expense {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date expenseDate;
+    
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    @JsonBackReference
+    private User user;
+    
 
     @PrePersist
     protected void onCreate() {
@@ -41,12 +52,12 @@ public class Expense {
         this.id = id;
     }
 
-    public String getMonth() {
-        return month;
+    public Account getAccount() {
+        return account;
     }
 
-    public void setMonth(String month) {
-        this.month = month;
+    public void setAccount(Account account) {
+        this.account = account;
     }
 
     public String getExpenseType() {
@@ -79,5 +90,13 @@ public class Expense {
 
     public void setExpenseDate(Date expenseDate) {
         this.expenseDate = expenseDate;
+    }
+    
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

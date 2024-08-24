@@ -1,13 +1,13 @@
 package com.bezkoder.spring.login.models;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users",
@@ -40,6 +40,14 @@ public class User {
                inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private Set<Account> accounts = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private Set<Expense> Expenses = new HashSet<>();
+    
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonManagedReference
     private UserProfile userProfile;
@@ -93,6 +101,14 @@ public class User {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public Set<Account> getAccounts() {
+        return accounts;
+    }
+
+    public void setAccounts(Set<Account> accounts) {
+        this.accounts = accounts;
     }
 
     public UserProfile getUserProfile() {
