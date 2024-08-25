@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*", allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:4200", "https://financemanagement-dac21.web.app"}, maxAge = 3600, allowCredentials = "true")
+
 @RestController
 @RequestMapping("/api/income")
 public class IncomeController {
