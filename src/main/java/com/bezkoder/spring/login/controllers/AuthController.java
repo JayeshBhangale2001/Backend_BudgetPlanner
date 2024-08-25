@@ -37,7 +37,8 @@ import com.bezkoder.spring.login.security.jwt.JwtUtils;
 import com.bezkoder.spring.login.security.services.UserDetailsImpl;
 
 //for Angular Client (withCredentials)
-@CrossOrigin(origins = "http://localhost:4200", maxAge = 3600, allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:4200", "https://financemanagement-dac21.web.app"}, maxAge = 3600, allowCredentials = "true")
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
