@@ -141,12 +141,13 @@ public class ExpenseService {
         Map<String, Double> trendData = new LinkedHashMap<>();
 
         Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); // Define your date format
         calendar.setTime(startDate);
 
         switch (timeline) {
             case "7D":
                 for (int i = 0; i < 7; i++) {
-                    String dateLabel = calendar.getTime().toString(); // Format date as needed
+                	String dateLabel = sdf.format(calendar.getTime()); // Format date
                     double totalAmount = expenses.stream()
                             .filter(expense -> isSameDay(expense.getExpenseDate(), calendar.getTime()))
                             .mapToDouble(Expense::getExpenseAmount)
@@ -157,7 +158,7 @@ public class ExpenseService {
                 break;
             case "30D":
                 for (int i = 0; i < 30; i++) {
-                    String dateLabel = calendar.getTime().toString(); // Format date as needed
+                	String dateLabel = sdf.format(calendar.getTime()); // Format date
                     double totalAmount = expenses.stream()
                             .filter(expense -> isSameDay(expense.getExpenseDate(), calendar.getTime()))
                             .mapToDouble(Expense::getExpenseAmount)
