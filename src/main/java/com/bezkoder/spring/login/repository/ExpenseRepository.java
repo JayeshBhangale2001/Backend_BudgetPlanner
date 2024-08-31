@@ -20,5 +20,9 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
         @Param("startDate") Date startDate,
         @Param("endDate") Date endDate
     );
-    List<Expense> findByUserIdAndExpenseDate(Long userId, Date date);
+    @Query(value = "SELECT * FROM expenses e WHERE e.user_id = :userId AND DATE(e.expense_date) = DATE(:expenseDate)", nativeQuery = true)
+    List<Expense> findByUserIdAndExpenseDateNative(
+        @Param("userId") Long userId,
+        @Param("expenseDate") Date expenseDate
+    );
 }
