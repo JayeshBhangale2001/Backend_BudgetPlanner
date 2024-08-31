@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -238,4 +240,84 @@ public class ExpenseService {
                         Collectors.summingDouble(Expense::getExpenseAmount)
                 ));
     }
+    
+    public List<Expense> getDetailedCategoryData(Long userId, String category, Date startDate, Date endDate, String timeline) {
+        List<Expense> expenses = expenseRepository.findByUserIdAndExpenseDateBetween(userId, startDate, endDate)
+                .stream()
+                .filter(expense -> category.equalsIgnoreCase(expense.getExpenseType()))
+                .collect(Collectors.toList());
+
+        return expenses;
+    }
+    
+    
+    public List<Expense> getExpensesForDate(Long userId, Date date) {
+        return expenseRepository.findByUserIdAndExpenseDate(userId, date);
+    }
+
+    // Method to get expenses for a specific week
+    public List<Expense> getExpensesForWeek(Long userId, int week, int year) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.WEEK_OF_YEAR, week);
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
+        
+        Date startDate = new Date(calendar.getTimeInMillis());
+        calendar.add(Calendar.DAY_OF_WEEK, 6);
+        Date endDate = new Date(calendar.getTimeInMillis());
+
+        return getExpensesByDateRange(userId, startDate, endDate);
+    }
+
+    // Method to get expenses for a specific month
+    public List<Expense> getExpensesForMonth(Long userId, int month, int year) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.MONTH, month);
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+
+        Date startDate = new Date(calendar.getTimeInMillis());
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        Date endDate = new Date(calendar.getTimeInMillis());
+
+        return getExpensesByDateRange(userId, startDate, endDate);
+    }
+
+    // Helper method to determine if the input is a week, month, or date
+    public List<Expense> getDetailedTrendData(Long userId, String value) {
+        if (value.startsWith("Week")) {
+            int week = Integer.parseInt(value.split(" ")[1]);
+            int year = Calendar.getInstance().get(Calendar.YEAR);
+            return getExpensesForWeek(userId, week, year);
+        } else if (isMonthName(value)) {
+            int month = getMonthFromName(value);
+            int year = Calendar.getInstance().get(Calendar.YEAR);
+            return getExpensesForMonth(userId, month, year);
+        } else {
+            Date date = Date.valueOf(value); // assuming value is in 'YYYY-MM-DD' format
+            return getExpensesForDate(userId, date);
+        }
+    }
+
+    private boolean isMonthName(String value) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("MMMM", Locale.ENGLISH);
+            sdf.parse(value);
+            return true;
+        } catch (ParseException e) {
+            return false;
+        }
+    }
+
+    private int getMonthFromName(String monthName) {
+        try {
+            java.util.Date date = new SimpleDateFormat("MMMM", Locale.ENGLISH).parse(monthName);
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(date);
+            return cal.get(Calendar.MONTH);
+        } catch (ParseException e) {
+            throw new IllegalArgumentException("Invalid month name: " + monthName);
+        }
+    }
+
 }

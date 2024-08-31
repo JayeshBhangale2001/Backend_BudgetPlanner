@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = {"http://localhost:4200", "https://financemanagement-dac21.web.app"}, maxAge = 3600, allowCredentials = "true")
 
@@ -84,4 +85,43 @@ public class ExpenseController {
 
         return statistics;
     }
+    
+    @GetMapping("/detailed-category")
+    public List<Expense> getDetailedCategoryData(
+            @RequestParam String category,
+            @RequestParam String timeline,
+            @RequestParam Date startDate,
+            @RequestParam Date endDate,
+            Authentication authentication) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Long userId = userDetails.getId();
+
+        logger.info("Fetching detailed category data for userId: {}, category: {}, timeline: {}, startDate: {}, endDate: {}", userId, category, timeline, startDate, endDate);
+
+        List<Expense> detailedCategoryData = expenseService.getDetailedCategoryData(userId, category, startDate, endDate, timeline);
+
+        logger.info("Detailed category data fetched: {}", detailedCategoryData);
+
+        return detailedCategoryData;
+    }
+    
+    @GetMapping("/detailed-trend")
+    public List<Expense> getDetailedTrendData(@RequestParam String date, Authentication authentication) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Long userId = userDetails.getId();
+
+        List<Expense> expenses = expenseService.getDetailedTrendData(userId, date);
+
+        return expenses;
+    }
+
+    private ExpenseDTO convertToDTO(Expense expense) {
+        ExpenseDTO dto = new ExpenseDTO();
+        dto.setAccountId(expense.getAccount().getId());
+        dto.setExpenseType(expense.getExpenseType());
+        dto.setExpenseAmount(expense.getExpenseAmount());
+        dto.setExpenseDate(new java.sql.Date(expense.getExpenseDate().getTime()));
+        return dto;
+    }
+
 }
