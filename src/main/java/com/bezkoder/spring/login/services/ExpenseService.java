@@ -253,7 +253,7 @@ public class ExpenseService {
     
     
     public List<Expense> getExpensesForDate(Long userId, Date date) {
-        return expenseRepository.findByUserIdAndExpenseDate(userId, date);
+        return expenseRepository.findByUserIdAndExpenseDateNative(userId, date);
     }
 
     // Method to get expenses for a specific week
