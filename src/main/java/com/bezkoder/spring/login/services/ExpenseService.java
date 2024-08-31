@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -110,7 +111,27 @@ public class ExpenseService {
         // Categorize expenses
         Map<String, Double> categoryData = calculateCategoryData(expenses);
 
-        return new ExpenseStatisticsDTO(trendData, categoryData);
+        // Calculate the total amount spent
+        Double totalAmount = expenses.stream()
+                                     .mapToDouble(Expense::getExpenseAmount)
+                                     .sum();
+
+     // Get the top 5 expenses
+        List<ExpenseDTO> topExpenses = expenses.stream()
+            .filter(expense -> expense.getExpenseAmount() != null) // Filter out null amounts if necessary
+            .sorted(Comparator.comparing(Expense::getExpenseAmount, Comparator.nullsLast(Double::compare)).reversed())
+            .limit(5)
+            .map(expense -> {
+                ExpenseDTO dto = new ExpenseDTO();
+                dto.setAccountId(expense.getAccount() != null ? expense.getAccount().getId() : null);
+                dto.setExpenseType(expense.getExpenseType());
+                dto.setExpenseAmount(expense.getExpenseAmount());
+                dto.setExpenseDate(new java.sql.Date(expense.getExpenseDate().getTime())); // Ensure proper date conversion
+                return dto;
+            })
+            .collect(Collectors.toList());
+
+        return new ExpenseStatisticsDTO(trendData, categoryData, totalAmount, topExpenses);
     }
 
     // Logic to calculate trend data based on timeline
